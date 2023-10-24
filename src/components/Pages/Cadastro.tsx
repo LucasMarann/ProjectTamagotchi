@@ -1,51 +1,53 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, Switch } from 'react-native';
-import CadastroStyle from '../PagesStyle/TelaCadastro';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  Switch,
+} from "react-native";
+import CadastroStyle from "../PagesStyle/TelaCadastro";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 const Cadastro = ({ navigation }) => {
-  const [nome, setNome] = useState('');
-  const [sobrenome, setSobrenome] = useState('');
-  const [apelido, setApelido] = useState('');
-  const [dataNascimento, setDataNascimento] = useState('');
-  const [nomeTamagotchi, setNomeTamagotchi] = useState('');
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [confiSenha, setConfiSenha] = useState('');
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confiSenha, setConfiSenha] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
-  const EmailValido = (email) => {
-
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
-
-  const NomeValido = (name) => {
-    return /^[A-Za-z]+$/.test(name);
-  };
 
   const SenhaValida = (password) => {
     return password.length >= 8 && password.length <= 14;
   };
 
-  const Cadastro = () => {
-    if (!NomeValido(nome)) {
-      Alert.alert('Nome deve conter apenas letras.');
-    } else if (!NomeValido(sobrenome)) {
-      Alert.alert('Sobrenome deve conter apenas letras.');
-    } else if (!dataNascimento.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
-      Alert.alert('Data de Nascimento deve estar no formato dd/mm/yyyy.');
-    } else if (nomeTamagotchi === '') {
-      Alert.alert('Dê um nome ao seu Tamagotchi.');
-    } else if (!EmailValido(email)) {
-      Alert.alert('Email inválido.');
-    } else if (!SenhaValida(senha) || !SenhaValida(confiSenha)) {
-      Alert.alert('A senha deve conter entre 8 e 14 caracteres.');
-    } else if (senha !== confiSenha) {
-      Alert.alert('As senhas não conferem.');
+  const Cadastro = async () => {
+    if (nome === "") {
+      Alert.alert("Nome deve conter apenas letras.");
+    } else if (email === "") {
+      Alert.alert("Email inválido.");
+    } else if (!SenhaValida(password) || !SenhaValida(confiSenha)) {
+      Alert.alert("A senha deve conter entre 8 e 14 caracteres.");
+    } else if (password !== confiSenha) {
+      Alert.alert("As senhas não conferem.");
     } else {
-      Alert.alert('Cadastro realizado com sucesso!');
-      // Redireciona para a página de login novamente
-      navigation.navigate('Login');
+      try {
+        await AsyncStorage.setItem("email", email);
+        await AsyncStorage.setItem("senha", password);
+        await axios.post(`https://tamagochiapi-clpsampedro.b4a.run/register`, {
+          email,
+          password,
+        });
+        alert("Sucesso");
+        navigation.navigate("Login");
+      } catch (error) {
+        alert("Email ja existente.");
+      }
     }
+    Alert.alert("Cadastro realizado com sucesso!");
+    // Redireciona para a página de login novamente
+    navigation.navigate("Login");
   };
 
   return (
@@ -58,26 +60,6 @@ const Cadastro = ({ navigation }) => {
       />
       <TextInput
         style={CadastroStyle.input}
-        placeholder="Sobrenome"
-        onChangeText={(text) => setSobrenome(text)}
-      />
-      <TextInput
-        style={CadastroStyle.input}
-        placeholder="Apelido"
-        onChangeText={(text) => setApelido(text)}
-      />
-      <TextInput
-        style={CadastroStyle.input}
-        placeholder="Data de Nascimento (dd/mm/yyyy)"
-        onChangeText={(text) => setDataNascimento(text)}
-      />
-      <TextInput
-        style={CadastroStyle.input}
-        placeholder="Nome do Tamagotchi"
-        onChangeText={(text) => setNomeTamagotchi(text)}
-      />
-      <TextInput
-        style={CadastroStyle.input}
         placeholder="Email"
         onChangeText={(text) => setEmail(text)}
       />
@@ -86,7 +68,7 @@ const Cadastro = ({ navigation }) => {
           style={CadastroStyle.passwordInput}
           placeholder="Senha"
           secureTextEntry={!showPassword}
-          onChangeText={(text) => setSenha(text)}
+          onChangeText={(text) => setPassword(text)}
         />
         <TextInput
           style={CadastroStyle.passwordInput}
@@ -97,11 +79,14 @@ const Cadastro = ({ navigation }) => {
         <Switch
           value={showPassword}
           onValueChange={() => setShowPassword(!showPassword)}
-          trackColor={{ false: 'gray', true: 'green' }}
-          thumbColor={showPassword ? 'green' : 'gray'}
+          trackColor={{ false: "gray", true: "green" }}
+          thumbColor={showPassword ? "green" : "gray"}
         />
       </View>
-      <TouchableOpacity style={CadastroStyle.cadastrarButton} onPress={Cadastro}>
+      <TouchableOpacity
+        style={CadastroStyle.cadastrarButton}
+        onPress={Cadastro}
+      >
         <Text style={CadastroStyle.cadastrarButtonText}>Cadastrar</Text>
       </TouchableOpacity>
     </View>
