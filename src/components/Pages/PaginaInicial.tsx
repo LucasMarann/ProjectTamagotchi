@@ -9,25 +9,25 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const PaginaInicial = ({ navigation }) => {
   const [listPets, setListPets] = useState({});
   const [menuVisible, setMenuVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    listarPets();
+  }, []);
 
   const listarPets = async () => {
-    const token = await AsyncStorage.getItem("token");
     setLoading(true);
     try {
       const response = await axios.get(
         "https://tamagochiapi-clpsampedro.b4a.run/pets"
       );
       setLoading(false);
-      setListPets(response.data?.pets || []);
+      console.log("Lista de pets:", response);
+      // setListPets(response.data?.pets || []);
     } catch (error) {
       console.error("Erro na requisição da API", error);
     }
   };
-
-  useEffect(() => {
-    listarPets();
-  }, []);
 
   const toggleMenu = () => {
     setMenuVisible(!menuVisible);
@@ -36,6 +36,10 @@ const PaginaInicial = ({ navigation }) => {
   const handleLogout = async () => {
     await AsyncStorage.removeItem("token");
     navigation.navigate("Login");
+  };
+
+  const playGame = () => {
+    navigation.navigate("Cobra");
   };
 
   return (
@@ -48,15 +52,16 @@ const PaginaInicial = ({ navigation }) => {
           <View style={styles.userMenu}>
             <Icon name="user" style={styles.userIcon} />
             <Text style={styles.userName}>Nome do usuario</Text>
+            <TouchableOpacity onPress={playGame}>
+              <Text style={styles.userName}>Jogar</Text>
+            </TouchableOpacity>
             <TouchableOpacity onPress={handleLogout}>
               <Text style={styles.logoutButton}>Logout</Text>
             </TouchableOpacity>
           </View>
         )}
       </View>
-      <View>
-        <List data={listPets} />
-      </View>
+      <View>{/* <List data={listPets} /> */}</View>
     </View>
   );
 };
