@@ -35,10 +35,14 @@ const Cadastro = ({ navigation }) => {
       try {
         await AsyncStorage.setItem("email", email);
         await AsyncStorage.setItem("senha", password);
-        await axios.post(`https://tamagochiapi-clpsampedro.b4a.run/register`, {
-          email,
-          password,
-        });
+        const cad = await axios.post(
+          `https://tamagochiapi-clpsampedro.b4a.run/register`,
+          {
+            email,
+            password,
+          }
+        );
+        console.log(cad);
         alert("Sucesso");
         navigation.navigate("Login");
       } catch (error) {
