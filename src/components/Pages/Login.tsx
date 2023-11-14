@@ -29,11 +29,12 @@ const Login = ({ navigation }) => {
         const response = await axios.post(
           `https://tamagochiapi-clpsampedro.b4a.run/login`,
           {
-            email,
-            password,
+            email: email,
+            password: password,
           }
         );
         const token = response.data.token;
+        console.log(token);
         await AsyncStorage.setItem("token", token);
         navigation.navigate("PaginaInicial");
       } catch (error) {
