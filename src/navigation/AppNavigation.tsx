@@ -7,6 +7,9 @@ import Home from "../components/Pages/Home";
 import Login from "../components/Pages/Login";
 import Cadastro from "../components/Pages/Cadastro";
 import PaginaInicial from "../components/Pages/PaginaInicial";
+import ListarPets from "../components/Pages/ListarPets";
+import CadastroPets from "../components/Pages/CadastroPets";
+import PetDetails from "../components/Pages/PetDetails";
 import Game from "../components/Pages/Game";
 
 const Stack = createNativeStackNavigator();
@@ -27,10 +30,13 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={Home} />
-        {/* <Stack.Screen name="Cobra" component={Game} /> */}
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Cadastro" component={Cadastro} />
         <Stack.Screen name="PaginaInicial" component={PaginaInicial} />
+        <Stack.Screen name="ListarPets" component={ListarPets} />
+        <Stack.Screen name="CadastroPets" component={CadastroPets} />
+        <Stack.Screen name="PetDetails" component={PetDetails} />
+        <Stack.Screen name="Cobra" component={Game} />
       </Stack.Navigator>
     </NavigationContainer>
   );
