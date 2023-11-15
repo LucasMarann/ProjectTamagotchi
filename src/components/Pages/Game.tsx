@@ -1,64 +1,161 @@
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  Alert,
+  TouchableOpacity,
+  Text,
+} from "react-native";
+
+const screenWidth = Dimensions.get("window").width;
+const tileSize = screenWidth / 20;
+const boardSize = tileSize * 20;
+
 const Game = () => {
-  // Define the game board dimensions
-  const BOARD_WIDTH = 20;
-  const BOARD_HEIGHT = 20;
+  const [snake, setSnake] = useState([{ x: 10, y: 10 }]);
+  const [food, setFood] = useState({ x: 15, y: 15 });
+  const [direction, setDirection] = useState("RIGHT");
 
-  // Define the initial position and direction of the snake
-  let snakeX = Math.floor(BOARD_WIDTH / 2);
-  let snakeY = Math.floor(BOARD_HEIGHT / 2);
-  let snakeDirection = "right";
+  useEffect(() => {
+    const interval = setInterval(updateGame, 1000);
+    return () => clearInterval(interval);
+  }, [snake, direction]);
 
-  // Define the initial position of the food
-  let foodX = Math.floor(Math.random() * BOARD_WIDTH);
-  let foodY = Math.floor(Math.random() * BOARD_HEIGHT);
-
-  // Define the snake's body as an array of coordinates
-  let snakeBody = [{ x: snakeX, y: snakeY }];
-
-  // Function to update the game state
-  function updateGame() {
-    // Clear the game board
-    clearBoard();
-
-    // Move the snake
+  const updateGame = () => {
     moveSnake();
+    checkCollision();
+    checkFoodCollision();
+  };
 
-    // Check for collisions
-    checkCollisions();
+  const moveSnake = () => {
+    let newSnake = [...snake];
+    let head = { ...newSnake[0] };
 
-    // Draw the snake
-    drawSnake();
+    switch (direction) {
+      case "RIGHT":
+        head.x += 1;
+        break;
+      case "LEFT":
+        head.x -= 1;
+        break;
+      case "UP":
+        head.y -= 1;
+        break;
+      case "DOWN":
+        head.y += 1;
+        break;
+    }
 
-    // Draw the food
-    drawFood();
-  }
+    newSnake.unshift(head);
+    newSnake.pop();
+    setSnake(newSnake);
+  };
 
-  // Function to clear the game board
-  function clearBoard() {
-    // Code to clear the game board
-  }
+  const checkCollision = () => {
+    let head = snake[0];
+    if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
+      Alert.alert("Game Over");
+      setSnake([{ x: 10, y: 10 }]);
+      setDirection("RIGHT");
+    }
+  };
 
-  // Function to move the snake
-  function moveSnake() {
-    // Code to move the snake
-  }
+  const checkFoodCollision = () => {
+    let head = snake[0];
+    if (head.x === food.x && head.y === food.y) {
+      setFood({
+        x: Math.floor(Math.random() * 20),
+        y: Math.floor(Math.random() * 20),
+      });
+      growSnake();
+    }
+  };
 
-  // Function to check for collisions
-  function checkCollisions() {
-    // Code to check for collisions
-  }
+  const growSnake = () => {
+    let newSnake = [...snake];
+    newSnake.push({
+      x: 0,
+      y: 0,
+    });
+    setSnake(newSnake);
+  };
 
-  // Function to draw the snake
-  function drawSnake() {
-    // Code to draw the snake
-  }
+  const changeDirection = (newDirection) => {
+    if (newDirection !== direction) {
+      setDirection(newDirection);
+    }
+  };
 
-  // Function to draw the food
-  function drawFood() {
-    // Code to draw the food
-  }
+  const renderBoard = () => {
+    return (
+      <View style={styles.board}>
+        {snake.map((s, index) => (
+          <View
+            key={index}
+            style={{
+              width: tileSize,
+              height: tileSize,
+              position: "absolute",
+              left: s.x * tileSize,
+              top: s.y * tileSize,
+              backgroundColor: "green",
+            }}
+          />
+        ))}
+        <View
+          style={{
+            width: tileSize,
+            height: tileSize,
+            position: "absolute",
+            left: food.x * tileSize,
+            top: food.y * tileSize,
+            backgroundColor: "red",
+          }}
+        />
+      </View>
+    );
+  };
 
-  // Start the game loop
-  setInterval(updateGame, 100);
+  return (
+    <View style={styles.container}>
+      {renderBoard()}
+      <View style={styles.controls}>
+        <TouchableOpacity onPress={() => changeDirection("LEFT")}>
+          <Text>Left</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => changeDirection("UP")}>
+          <Text>Up</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => changeDirection("DOWN")}>
+          <Text>Down</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => changeDirection("RIGHT")}>
+          <Text>Right</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  board: {
+    width: boardSize,
+    height: boardSize,
+    backgroundColor: "lightgray",
+    position: "relative",
+  },
+  controls: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    marginTop: 20,
+  },
+});
+
 export default Game;
